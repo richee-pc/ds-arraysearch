@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>알고리즘 탐험: 정렬과 탐색</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .bar, .sub-bar { transition: all 0.3s ease-in-out; }
+        .nav-item { transition: all 0.2s ease; }
+        .nav-item.active { color: #4f46e5; border-bottom-color: #4f46e5; }
+        .tab-item.active { border-color: #4f46e5; color: #4f46e5; background-color: #eef2ff; }
+        .log-item.active { background-color: #dbeafe; }
+        
+        /* 시각화 강화 스타일 */
+        .viz-container { position: relative; min-height: 200px; }
+        .merge-level { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;}
+        .sub-array { display: flex; gap: 2px; padding: 5px; background-color: #e0e7ff; border-radius: 5px; border: 1px solid #c7d2fe; }
+        .sub-bar { width: 2rem; text-align: center; color: white; background-color: #818cf8; border-radius: 3px; }
+        .quick-partition { border: 2px dashed #a78bfa; border-radius: 5px; padding: 4px 0; margin-bottom: 5px;}
+        .shell-gap-group { opacity: 0.3; }
+        .shell-gap-group.active { opacity: 1; }
+
+        /* 해싱 시뮬레이터 스타일 */
+        .hash-table { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
+        .hash-slot { border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px; text-align: center; background: #f1f5f9; min-height: 60px; position: relative; }
+        .hash-slot .slot-index { font-size: 0.75rem; color: #64748b; position: absolute; top: 2px; left: 4px; }
+        .hash-slot.comparing { background-color: #fef9c3; border-color: #facc15; }
+        .hash-slot.occupied { background-color: #e0e7ff; border-color: #818cf8; }
+        .hash-slot.collided { background-color: #fee2e2; border-color: #f87171; }
+        .chain-item { background-color: #60a5fa; color: white; padding: 2px 4px; border-radius: 3px; margin-top: 4px; font-size: 0.875rem; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-indigo-600 cursor-pointer" onclick="showPage('home')">🚀 알고리즘 탐험</h1>
+            <div class="flex space-x-4 text-md md:text-lg">
+                <a href="#sorting" class="text-slate-600 hover:text-indigo-600" onclick="showPage('sorting')">정렬 알고리즘</a>
+                <a href="#searching" class="text-slate-600 hover:text-indigo-600" onclick="showPage('searching')">탐색 알고리즘</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+        <!-- Home Page -->
+        <div id="home-page" class="page">
+             <div class="text-center bg-white p-12 rounded-xl shadow-lg">
+                <h2 class="text-4xl font-bold mb-4">알고리즘 탐험: 정렬과 탐색의 세계로!</h2>
+                <p class="text-xl text-slate-600 max-w-3xl mx-auto mb-8">복잡해 보이는 정렬과 탐색 알고리즘, 눈으로 직접 보며 원리를 깨우쳐봐요! 코딩의 첫걸음을 내딛는 여러분을 위한 최고의 놀이터입니다.</p>
+                <div class="bg-indigo-50 p-8 rounded-lg mb-10 text-left max-w-2xl mx-auto">
+                    <h3 class="text-2xl font-bold mb-4 text-indigo-700">🎯 학습 목표</h3>
+                    <ul class="space-y-3 text-lg text-slate-700 list-disc list-inside">
+                        <li>단순 정렬(버블, 선택, 삽입)과 복잡하지만 효율적인 정렬(쉘, 합병, 퀵, 기수)의 동작 원리를 시각적으로 이해한다.</li>
+                        <li>다양한 탐색(순차, 이진, 보간 등) 알고리즘의 차이점을 명확히 파악하고 해싱의 개념을 이해한다.</li>
+                        <li>알고리즘의 효율성을 나타내는 '시간 복잡도'의 기본 개념을 익힌다.</li>
+                    </ul>
+                </div>
+                <div class="flex justify-center gap-6">
+                    <button onclick="showPage('sorting')" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg text-xl hover:bg-indigo-700 transition-transform transform hover:scale-105">정렬 배우러 가기</button>
+                    <button onclick="showPage('searching')" class="bg-teal-500 text-white font-bold py-3 px-8 rounded-lg text-xl hover:bg-teal-600 transition-transform transform hover:scale-105">탐색 배우러 가기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sorting Algorithms Page -->
+        <div id="sorting-page" class="page hidden">
+            <nav id="sorting-nav" class="flex flex-wrap justify-center border-b-2 mb-8">
+                <button class="nav-item text-lg font-semibold p-3 border-b-4 border-transparent" data-algo="bubbleSort">버블 정렬</button>
+                <button class="nav-item text-lg font-semibold p-3 border-b-4 border-transparent" data-algo="selectionSort">선택 정렬</button>
+                <button class="nav-item text-lg font-semibold p-3 border-b-4 border-transparent" data-algo="insertionSort">삽입 정렬</button>
+                <button class="nav-item text-lg font-semibold p-3 border-b-4 border-transparent" data-algo="shellSort">쉘 정렬</button>
+                <button class="nav-item text-lg font-semibold p-3 border-b-4 border-transparent" data-algo="mergeSort">합병 정렬</button>
+                <button class="nav-item text-lg font-semibold p-3 border-b-4 border-transparent" data-algo="quickSort">퀵 정렬</button>
+                <button class="nav-item text-lg font-semibold p-3 border-b-4 border-transparent" data-algo="radixSort">기수 정렬</button>
+            </nav>
+            <div id="algorithm-content"></div>
+        </div>
+
+        <!-- Searching Algorithms Page -->
+        <div id="searching-page" class="page hidden">
+            <nav id="searching-nav" class="flex flex-wrap justify-center border-b-2 mb-8">
+                <button class="nav-item text-lg font-semibold p-3 border-b-4 border-transparent" data-algo="sequentialSearch">순차 탐색</button>
+                <button class="nav-item text-lg font-semibold p-3 border-b-4 border-transparent" data-algo="binarySearch">이진 탐색</button>
+                <button class="nav-item text-lg font-semibold p-3 border-b-4 border-transparent" data-algo="interpolationSearch">보간 탐색</button>
+                <button class="nav-item text-lg font-semibold p-3 border-b-4 border-transparent" data-algo="indexedSequentialSearch">색인 순차 탐색</button>
+                <button class="nav-item text-lg font-semibold p-3 border-b-4 border-transparent" data-algo="hashing">해싱</button>
+            </nav>
+            <div id="search-algorithm-content"></div>
+        </div>
+    </main>
+
+    <script>
+        // --- Global State ---
+        let currentAlgorithm = null;
+        let animationState = {
+            isPlaying: false,
+            isPaused: false,
+            steps: [],
+            currentStep: 0,
+            speed: 500, // ms
+            timeoutId: null,
+        };
+
+        // --- Data & Content ---
+        const algorithms = {
+            // --- 정렬 알고리즘 ---
+            bubbleSort: {
+                name: "버블 정렬 (Bubble Sort)", type: 'sort',
+                idea: "인접한 2개의 레코드를 비교하여 순서대로 되어 있지 않으면 서로 교환합니다.",
+                analogy: "여러 명의 학생들이 키 순서대로 줄을 서는 것과 같아요. 맨 앞부터 두 명씩 짝을 지어 키를 비교하고, 키가 더 큰 학생을 뒤로 보내는 과정을 줄 끝까지 반복하는 거죠. 이 과정을 모든 학생이 제자리를 찾을 때까지 계속하는 거예요. 마치 물속의 거품(Bubble)이 보글보글 위로 올라오는 모습과 비슷해서 버블 정렬이라는 이름이 붙었답니다.",
+                defaultInput: "5, 2, 8, 1, 9",
+                performance: { best: { notation: "O(n)" }, average: { notation: "O(n²)" }, worst: { notation: "O(n²)" } },
+                code: { c: `void swap(int* xp, int* yp) { int temp = *xp; *xp = *yp; *yp = temp; }
+
+void bubbleSort(int arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) { 
+                swap(&arr[j], &arr[j + 1]); 
+            }
+        }
+    }
+}` }
+            },
+            selectionSort: {
+                name: "선택 정렬 (Selection Sort)", type: 'sort',
+                idea: "전체 데이터 중에서 가장 작은 값을 찾아서 정렬되지 않은 부분의 첫 번째 데이터와 교환하는 과정을 반복합니다.",
+                analogy: "여러 개의 공 중에서 가장 가벼운 공을 골라내는 것과 같아요. 모든 공의 무게를 한 번씩 다 재보고 가장 가벼운 공을 찾아 맨 왼쪽에 놓습니다. 그다음, 남은 공들 중에서 다시 가장 가벼운 공을 찾아 두 번째 자리에 놓는 과정을 모든 공이 순서대로 놓일 때까지 반복하는 거죠.",
+                defaultInput: "64, 25, 12, 22, 11",
+                performance: { best: { notation: "O(n²)" }, average: { notation: "O(n²)" }, worst: { notation: "O(n²)" } },
+                code: { c: `void swap(int* xp, int* yp) { int temp = *xp; *xp = *yp; *yp = temp; }
+
+void selectionSort(int arr[], int n) {
+    int i, j, min_idx;
+    for (i = 0; i < n - 1; i++) {
+        min_idx = i;
+        for (j = i + 1; j < n; j++) {
+            if (arr[j] < arr[min_idx]) 
+                min_idx = j;
+        }
+        swap(&arr[min_idx], &arr[i]);
+    }
+}` }
+            },
+            insertionSort: {
+                name: "삽입 정렬 (Insertion Sort)", type: 'sort',
+                idea: "정렬되어 있는 부분에 새로운 레코드를 올바른 위치에 삽입하는 과정을 반복합니다.",
+                analogy: "손에 들고 있는 카드를 숫자 순서대로 정리하는 것과 똑같아요. 새로운 카드를 뽑을 때마다, 이미 손에 들고 있는 정렬된 카드들과 비교해서 올바른 자리에 쏙 끼워 넣잖아요? 그 과정을 모든 카드를 다 뽑을 때까지 반복하는 거예요.",
+                defaultInput: "12, 11, 13, 5, 6",
+                performance: { best: { notation: "O(n)" }, average: { notation: "O(n²)" }, worst: { notation: "O(n²)" } },
+                code: { c: `void insertionSort(int arr[], int n) {
+    int i, key, j;
+    for (i = 1; i < n; i++) {
+        key = arr[i];
+        j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j = j - 1;
+        }
+        arr[j + 1] = key;
+    }
+}` }
+            },
+            shellSort: {
+                name: "쉘 정렬 (Shell Sort)", type: 'sort',
+                idea: "전체 리스트를 일정한 간격(gap)의 부분 리스트로 나눈 후, 각 부분 리스트를 삽입 정렬하여 정렬하는 과정을 반복합니다. 간격은 점점 줄여나갑니다.",
+                analogy: "카드 정리를 더 빠르게 하는 방법이에요. 처음에는 10장씩 띄엄띄엄 카드를 비교해서 대충 정렬하고, 다음엔 5장씩, 그 다음엔 2장씩... 이렇게 간격을 줄여가며 정렬하면 마지막에 거의 정렬된 상태가 되어서 삽입 정렬이 아주 빠르게 끝나요.",
+                defaultInput: "12, 34, 54, 2, 3, 40, 22, 88, 60",
+                performance: { best: { notation: "O(n log n)" }, average: { notation: "O(n^(3/2))" }, worst: { notation: "O(n²)" } },
+                code: { c: `void shellSort(int arr[], int n) {
+    for (int gap = n / 2; gap > 0; gap /= 2) {
+        for (int i = gap; i < n; i += 1) {
+            int temp = arr[i];
+            int j;
+            for (j = i; j >= gap && arr[j - gap] > temp; j -= gap) {
+                arr[j] = arr[j - gap];
+            }
+            arr[j] = temp;
+        }
+    }
+}` }
+            },
+            mergeSort: {
+                name: "합병 정렬 (Merge Sort)", type: 'sort',
+                idea: "분할 정복(Divide and Conquer) 방법을 사용합니다. 리스트를 두 개의 균등한 크기로 분할하고 분할된 부분 리스트를 정렬한 다음, 정렬된 두 부분 리스트를 합하여(merge) 전체를 정렬합니다.",
+                analogy: "어려운 시험공부를 할 때 범위를 반으로 나누고, 또 반으로 나눠서 작은 부분부터 완벽하게 공부하는 것과 같아요. 작은 부분들을 다 공부한 뒤에 합쳐서 전체를 보면 어느새 정리가 끝나있는 거죠. 분할해서 정복하는 전략이에요!",
+                defaultInput: "27, 10, 12, 20, 25, 13, 15, 22",
+                performance: { best: { notation: "O(n log n)" }, average: { notation: "O(n log n)" }, worst: { notation: "O(n log n)" } },
+                code: { c: `void merge(int arr[], int l, int m, int r) { /* ... */ }
+
+void mergeSort(int arr[], int l, int r) {
+    if (l < r) {
+        int m = l + (r - l) / 2;
+        mergeSort(arr, l, m);
+        mergeSort(arr, m + 1, r);
+        merge(arr, l, m, r);
+    }
+}` }
+            },
+            quickSort: {
+                name: "퀵 정렬 (Quick Sort)", type: 'sort',
+                idea: "분할 정복 방법을 사용합니다. 리스트에서 하나의 기준(pivot)을 고르고, 피벗보다 작은 값은 왼쪽, 큰 값은 오른쪽으로 분할한 후, 각 부분 리스트를 재귀적으로 정렬합니다.",
+                analogy: "단체 사진을 찍을 때 키 순으로 세우는 것과 같아요. 기준이 될 학생(pivot)을 한 명 뽑고, 그 학생보다 작은 친구들은 왼쪽, 큰 친구들은 오른쪽으로 보내요. 그리고 왼쪽 그룹과 오른쪽 그룹에서 각각 같은 방법으로 기준을 뽑아 줄을 세우면 전체 줄이 순식간에 완성되죠.",
+                defaultInput: "5, 3, 8, 4, 9, 1, 6, 2, 7",
+                performance: { best: { notation: "O(n log n)" }, average: { notation: "O(n log n)" }, worst: { notation: "O(n²)" } },
+                code: { c: `void swap(int* a, int* b) { /* ... */ }
+int partition(int arr[], int low, int high) {
+    int pivot = arr[low];
+    int i = high + 1;
+
+    for (int j = high; j > low; j--) {
+        if (arr[j] > pivot) {
+            i--;
+            swap(&arr[i], &arr[j]);
+        }
+    }
+    swap(&arr[i - 1], &arr[low]);
+    return (i - 1);
+}
+
+void quickSort(int arr[], int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}` }
+            },
+            radixSort: {
+                name: "기수 정렬 (Radix Sort)", type: 'sort',
+                idea: "값을 비교하지 않고, 데이터의 자릿수(radix)를 이용하여 정렬합니다. 1의 자리부터 가장 큰 자릿수까지 순서대로 버킷에 데이터를 넣었다 빼는 과정을 반복합니다.",
+                analogy: "숫자 카드들을 0부터 9까지 쓰인 상자(버킷)에 정리하는 것과 같아요. 먼저 모든 카드를 1의 자릿수에 맞춰 상자에 넣고 순서대로 꺼내요. 그 다음엔 10의 자릿수에 맞춰 같은 과정을 반복하죠. 이렇게 하면 모든 카드가 완벽하게 정렬됩니다.",
+                defaultInput: "170, 45, 75, 90, 802, 24, 2, 66",
+                performance: { best: { notation: "O(nk)" }, average: { notation: "O(nk)" }, worst: { notation: "O(nk)" } },
+                code: { c: `int getMax(int arr[], int n) { /* ... */ }
+void countSort(int arr[], int n, int exp) { /* ... */ }
+
+void radixsort(int arr[], int n) {
+    int m = getMax(arr, n);
+    for (int exp = 1; m / exp > 0; exp *= 10)
+        countSort(arr, n, exp);
+}` }
+            },
+            // --- 탐색 알고리즘 ---
+            sequentialSearch: {
+                name: "순차 탐색 (Sequential Search)", type: 'search',
+                idea: "정렬되지 않은 배열을 처음부터 마지막까지 하나씩 검사하는 가장 간단하고 직접적인 탐색 방법입니다.",
+                analogy: "도서관에서 책 제목만 보고 원하는 책을 찾을 때, 첫 번째 책꽂이의 첫 번째 책부터 마지막 책까지 하나도 빠짐없이 훑어보는 것과 같아요.",
+                defaultInput: "9, 2, 8, 5, 7, 1, 6", defaultTarget: "7",
+                performance: { best: { notation: "O(1)" }, average: { notation: "O(n)" }, worst: { notation: "O(n)" } },
+                code: { c: `int sequentialSearch(int arr[], int n, int key) {
+    for (int i = 0; i < n; i++) {
+        if (arr[i] == key) {
+            return i; // 탐색 성공
+        }
+    }
+    return -1; // 탐색 실패
+}` }
+            },
+            binarySearch: {
+                name: "이진 탐색 (Binary Search)", type: 'search',
+                idea: "정렬된 배열의 중앙에 있는 값을 조사하여 찾고자 하는 항목이 왼쪽 또는 오른쪽 부분 배열에 있는지를 알아내어 탐색의 범위를 반으로 줄여가며 탐색을 진행합니다.",
+                analogy: "영어 사전에서 단어를 찾을 때, 사전을 아무 데나 펼쳐서 중간 단어와 비교하여 앞뒤 범위를 줄여나가는 것과 같아요.",
+                defaultInput: "1, 2, 5, 6, 7, 8, 9", defaultTarget: "2",
+                performance: { best: { notation: "O(1)" }, average: { notation: "O(log n)" }, worst: { notation: "O(log n)" } },
+                code: { c: `int binarySearch(int arr[], int l, int r, int key) {
+    while (l <= r) {
+        int m = l + (r - l) / 2;
+        if (arr[m] == key) return m;
+        if (arr[m] < key) l = m + 1;
+        else r = m - 1;
+    }
+    return -1;
+}` }
+            },
+            interpolationSearch: {
+                name: "보간 탐색 (Interpolation Search)", type: 'search',
+                idea: "탐색 키가 존재할 위치를 예측하여 탐색하는 방법으로, 데이터가 균등하게 분포되어 있을 때 이진 탐색보다 효율적입니다.",
+                analogy: "전화번호부에서 '홍길동'을 찾을 때, 중간인 '사'씨부터 찾지 않고 끝부분인 '하'씨 근처를 펼쳐보는 것과 같아요. 데이터의 분포를 예측해서 더 똑똑하게 중간 지점을 정하는 거죠.",
+                defaultInput: "10, 12, 13, 16, 18, 19, 20, 21, 22, 23, 24, 33, 35, 42, 47", defaultTarget: "18",
+                performance: { best: { notation: "O(1)" }, average: { notation: "O(log log n)" }, worst: { notation: "O(n)" } },
+                code: { c: `int interpolationSearch(int arr[], int n, int key) {
+    int lo = 0, hi = (n - 1);
+    while (lo <= hi && key >= arr[lo] && key <= arr[hi]) {
+        if (lo == hi) {
+            if (arr[lo] == key) return lo;
+            return -1;
+        }
+        int pos = lo + (((double)(hi - lo) / 
+              (arr[hi] - arr[lo])) * (key - arr[lo]));
+        if (arr[pos] == key) return pos;
+        if (arr[pos] < key) lo = pos + 1;
+        else hi = pos - 1;
+    }
+    return -1;
+}` }
+            },
+            indexedSequentialSearch: {
+                name: "색인 순차 탐색", type: 'conceptual',
+                idea: "인덱스 테이블을 사용하여 탐색 효율을 증대시킵니다. 주 자료 리스트와 인덱스 테이블은 모두 정렬되어 있어야 합니다.",
+                analogy: "책의 맨 뒤에 있는 '찾아보기(색인)'를 이용하는 것과 같아요. 책 전체를 다 뒤지는 대신, 색인에서 원하는 키워드가 몇 페이지에 있는지 먼저 찾고 그 페이지로 바로 넘어가는 거죠.",
+                performanceText: "인덱스 테이블 크기가 m, 주 자료 리스트 크기가 n일 때, 복잡도는 O(m+n/m) 입니다.",
+                code: { c: `// 개념 설명을 위한 의사코드입니다.
+// 1. 인덱스 테이블에서 key가 속할 범위를 찾는다.
+//    (index_table[i] <= key < index_table[i+1])
+//
+// 2. 해당 범위의 주 자료 리스트 블록을 가져온다.
+//
+// 3. 해당 블록 내에서 순차 탐색을 수행하여 key를 찾는다.` },
+                visualization: `<div class="text-center p-4">
+                    <h4 class="font-bold text-lg mb-2">책의 '찾아보기'와 같은 원리</h4>
+                    <div class="flex flex-col md:flex-row justify-center items-start gap-4">
+                        <div class="bg-blue-100 p-4 rounded-lg">
+                            <h5 class="font-bold mb-2">인덱스 테이블</h5>
+                            <p>[가] - 1 page</p>
+                            <p>[나] - 50 page</p>
+                            <p>[다] - 120 page</p>
+                            <p>...</p>
+                        </div>
+                        <div class="text-2xl mt-8">→</div>
+                        <div class="bg-green-100 p-4 rounded-lg">
+                            <h5 class="font-bold mb-2">주 데이터 (책 내용)</h5>
+                            <p>1~49 page 내용</p>
+                            <p class="font-bold bg-yellow-200">50~119 page 내용 (탐색 범위)</p>
+                            <p>120~... page 내용</p>
+                        </div>
+                    </div>
+                    <p class="mt-4 text-slate-600">먼저 인덱스에서 범위를 찾고, 해당 범위만 순차적으로 탐색하여 효율을 높입니다.</p>
+                </div>`
+            },
+            hashing: {
+                name: "해싱 (Hashing)", type: 'conceptual-container',
+                idea: "키 값에 대한 산술적 연산(해시 함수)에 의해 테이블의 주소를 계산하여 항목에 접근합니다.",
+                analogy: "모든 사람에게 고유한 '주민등록번호'를 부여하는 것과 같아요. 주민등록번호(해시 값)를 알면 바로 그 사람의 정보(데이터)를 찾을 수 있죠.",
+                subAlgos: {
+                    linearProbing: {
+                        name: "선형 조사법",
+                        idea: "충돌이 발생하면, 해당 위치에서 순차적으로 다음 빈칸을 찾아 데이터를 저장합니다.",
+                        defaultInput: "8, 1, 9, 6, 13", tableSize: 7,
+                        code: `// 코드는 생략되었습니다.`
+                    },
+                    quadraticProbing: {
+                        name: "이차 조사법",
+                        idea: "충돌이 발생하면, 1², 2², 3²... 만큼 떨어진 칸을 순서대로 찾아 데이터를 저장합니다.",
+                        defaultInput: "8, 1, 9, 6, 13", tableSize: 7,
+                        code: `// 코드는 생략되었습니다.`
+                    },
+                    doubleHashing: {
+                        name: "이중 해싱",
+                        idea: "충돌이 발생하면, 두 번째 해시 함수를 이용해 다음 위치의 간격을 정한 뒤 빈칸을 찾아 저장합니다.<br><b>- 2차 해시 함수: h'(k) = 5 - (k % 5)</b><br><b>- 다음 위치: (h(k) + i * h'(k)) % 테이블 크기</b>",
+                        defaultInput: "8, 1, 9, 6, 13", tableSize: 7,
+                        code: `// 코드는 생략되었습니다.`
+                    },
+                    chaining: {
+                        name: "체이닝",
+                        idea: "충돌이 발생하면, 해당 주소에 데이터를 연결 리스트(chain) 형태로 계속해서 연결하여 저장합니다.",
+                        defaultInput: "8, 1, 9, 6, 13", tableSize: 7,
+                        code: `// 코드는 생략되었습니다.`
+                    }
+                }
+            }
+        };
+        
+        // --- Full script ---
+        // --- UI Generation ---
+        function generateAlgorithmPage(algoKey) {
+            const algo = algorithms[algoKey];
+            if (algo.type === 'conceptual') return generateConceptualPage(algoKey);
+            if (algo.type === 'conceptual-container') return generateHashingContainerPage(algoKey);
+
+            const isSearch = algo.type === 'search';
+            const targetInputHTML = isSearch ? `
+                <div class="flex-1">
+                    <label for="target-input" class="block text-sm font-medium text-slate-700 mb-1">찾을 값</label>
+                    <input type="text" id="target-input" class="w-full p-2 border border-slate-300 rounded-md" value="${algo.defaultTarget}">
+                </div>` : '';
+            const searchWarningHTML = algoKey === 'binarySearch' || algoKey === 'interpolationSearch' ? `<p class="text-sm text-red-500 mt-2">⚠️ 이 탐색은 반드시 정렬된 데이터를 입력해야 합니다.</p>` : '';
+
+            return `
+                <div class="space-y-8">
+                    <section class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-2xl font-bold mb-3">${algo.name}</h3>
+                        <p class="text-lg font-semibold text-indigo-600 mb-2">${algo.idea}</p>
+                        <p class="text-slate-600">${algo.analogy}</p>
+                    </section>
+                    <section class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-2xl font-bold mb-4">인터랙티브 시뮬레이터</h3>
+                        <div class="flex flex-col md:flex-row gap-4 mb-4">
+                            <div class="flex-grow">
+                                <label for="data-input" class="block text-sm font-medium text-slate-700 mb-1">데이터 입력 (쉼표로 구분)</label>
+                                <input type="text" id="data-input" class="w-full p-2 border border-slate-300 rounded-md" value="${algo.defaultInput}">
+                                ${searchWarningHTML}
+                            </div>
+                            ${targetInputHTML}
+                        </div>
+                        <div id="controls" class="flex flex-wrap items-center gap-3 mb-4">
+                            <button id="start-btn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">▶ 시작</button>
+                            <button id="pause-btn" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600" disabled>❚❚ 일시정지</button>
+                            <button id="step-btn" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">❯ 한 단계씩</button>
+                            <button id="reset-btn" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">↺ 초기화</button>
+                            <div class="flex items-center gap-2 ml-auto">
+                                <label for="speed-slider" class="text-sm">속도:</label>
+                                <input type="range" id="speed-slider" min="100" max="1000" value="500" class="w-32">
+                            </div>
+                        </div>
+                        <div id="visualization-area" class="bg-slate-100 p-4 rounded-md min-h-[250px] flex justify-center items-end gap-1 overflow-x-auto viz-container"></div>
+                    </section>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <section class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-2xl font-bold mb-4">단계별 설명 (Log)</h3>
+                            <div id="log-area" class="h-64 overflow-y-auto bg-slate-50 rounded p-2 border"></div>
+                        </section>
+                        <section class="bg-white p-6 rounded-lg shadow">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-2xl font-bold">코드 보기 (C 언어)</h3>
+                                <button id="copy-code-btn" class="bg-slate-200 text-sm px-3 py-1 rounded hover:bg-slate-300">코드 복사</button>
+                            </div>
+                            <pre class="bg-slate-800 text-white p-4 rounded-md h-64 overflow-auto"><code id="code-snippet"></code></pre>
+                        </section>
+                    </div>
+                    <section class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-2xl font-bold mb-4">성능 분석 (시간 복잡도)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                                <h4 class="text-lg font-bold text-green-700">최선 (Best)</h4>
+                                <p class="text-2xl font-mono my-2 text-green-800">${algo.performance.best.notation}</p>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                <h4 class="text-lg font-bold text-blue-700">평균 (Average)</h4>
+                                <p class="text-2xl font-mono my-2 text-blue-800">${algo.performance.average.notation}</p>
+                            </div>
+                            <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                                <h4 class="text-lg font-bold text-red-700">최악 (Worst)</h4>
+                                <p class="text-2xl font-mono my-2 text-red-800">${algo.performance.worst.notation}</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>`;
+        }
+        
+        function generateConceptualPage(algoKey) {
+            const algo = algorithms[algoKey];
+            return `
+                <div class="space-y-8">
+                    <section class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-2xl font-bold mb-3">${algo.name}</h3>
+                        <p class="text-lg font-semibold text-indigo-600 mb-2">${algo.idea}</p>
+                        <p class="text-slate-600">${algo.analogy}</p>
+                    </section>
+                    <section class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-2xl font-bold mb-4">핵심 원리</h3>
+                        ${algo.visualization}
+                    </section>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <section class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-2xl font-bold mb-4">코드 보기 (C 언어)</h3>
+                            <pre class="bg-slate-800 text-white p-4 rounded-md h-48 overflow-auto"><code>${algo.code.c}</code></pre>
+                        </section>
+                        <section class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-2xl font-bold mb-4">성능 분석</h3>
+                            <p class="text-lg text-slate-700">${algo.performanceText}</p>
+                        </section>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateHashingContainerPage(algoKey) {
+            const algo = algorithms[algoKey];
+            let subNavHTML = '<div id="hashing-nav" class="flex flex-wrap justify-center gap-2 mb-6">';
+            for (const subKey in algo.subAlgos) {
+                subNavHTML += `<button class="tab-item p-2 border rounded" data-subkey="${subKey}">${algo.subAlgos[subKey].name}</button>`;
+            }
+            subNavHTML += '</div>';
+
+            return `
+                <div class="space-y-8">
+                    <section class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-2xl font-bold mb-3">${algo.name}</h3>
+                        <p class="text-lg font-semibold text-indigo-600 mb-2">${algo.idea}</p>
+                        <p class="text-slate-600">${algo.analogy}</p>
+                    </section>
+                    ${subNavHTML}
+                    <div id="hashing-content"></div>
+                </div>
+            `;
+        }
+        
+        function generateHashingSimulatorPage(subKey) {
+            const subAlgo = algorithms.hashing.subAlgos[subKey];
+            return `
+                <section class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-bold mb-2">${subAlgo.name}</h3>
+                    <div class="text-slate-600 mb-4">${subAlgo.idea}</div>
+                    <div class="flex flex-col md:flex-row gap-4 mb-4">
+                        <div class="flex-grow">
+                            <label for="data-input" class="block text-sm font-medium text-slate-700 mb-1">입력 데이터 (해시 테이블 크기: ${subAlgo.tableSize})</label>
+                            <input type="text" id="data-input" class="w-full p-2 border border-slate-300 rounded-md" value="${subAlgo.defaultInput}">
+                        </div>
+                    </div>
+                    <div id="controls" class="flex flex-wrap items-center gap-3 mb-4">
+                         <button id="start-btn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">▶ 시작</button>
+                         <button id="pause-btn" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600" disabled>❚❚ 일시정지</button>
+                         <button id="step-btn" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">❯ 한 단계씩</button>
+                         <button id="reset-btn" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">↺ 초기화</button>
+                    </div>
+                    <div id="visualization-area" class="bg-slate-100 p-4 rounded-md min-h-[200px] overflow-x-auto"></div>
+                    <div id="collision-summary" class="mt-4 text-center font-semibold text-lg text-indigo-700"></div>
+                </section>
+                <section class="bg-white p-6 rounded-lg shadow mt-8">
+                    <h3 class="text-2xl font-bold mb-4">단계별 설명 (Log)</h3>
+                    <div id="log-area" class="h-64 overflow-y-auto bg-slate-50 rounded p-2 border"></div>
+                </section>
+            `;
+        }
+
+        // --- Page Navigation & Setup ---
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+            document.getElementById(`${pageId}-page`).classList.remove('hidden');
+            if (pageId === 'sorting') {
+                if (!document.querySelector('#sorting-nav .active')) {
+                    document.querySelector('#sorting-nav .nav-item').click();
+                }
+            } else if (pageId === 'searching') {
+                if (!document.querySelector('#searching-nav .active')) {
+                    document.querySelector('#searching-nav .nav-item').click();
+                }
+            }
+        }
+
+        function selectAlgorithm(algoKey) {
+            currentAlgorithm = algoKey;
+            const algo = algorithms[algoKey];
+            const containerId = (algo.type === 'sort') ? 'algorithm-content' : 'search-algorithm-content';
+            document.getElementById(containerId).innerHTML = generateAlgorithmPage(algoKey);
+            
+            if (algo.type === 'conceptual-container') {
+                document.querySelectorAll('#hashing-nav .tab-item').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        const subKey = e.target.dataset.subkey;
+                        document.getElementById('hashing-content').innerHTML = generateHashingSimulatorPage(subKey);
+                        currentAlgorithm = subKey; // Set current algorithm to the sub-key for simulation
+                        setupEventListeners();
+                        resetVisualizer();
+                        document.querySelectorAll('#hashing-nav .tab-item').forEach(t => t.classList.remove('active'));
+                        e.target.classList.add('active');
+                    });
+                });
+                document.querySelector('#hashing-nav .tab-item').click();
+            } else if (algo.type !== 'conceptual') {
+                setupEventListeners();
+                resetVisualizer();
+            }
+            
+            const navContainerId = (algo.type === 'sort') ? 'sorting-nav' : 'searching-nav';
+            document.querySelectorAll(`#${navContainerId} .nav-item`).forEach(item => {
+                item.classList.toggle('active', item.dataset.algo === algoKey);
+            });
+        }
+
+        function setupEventListeners() {
+            const startBtn = document.getElementById('start-btn');
+            if (!startBtn) return; // Guard clause if controls don't exist
+            
+            startBtn.addEventListener('click', startAnimation);
+            document.getElementById('pause-btn').addEventListener('click', pauseAnimation);
+            document.getElementById('step-btn').addEventListener('click', stepAnimation);
+            document.getElementById('reset-btn').addEventListener('click', resetVisualizer);
+            document.getElementById('speed-slider').addEventListener('input', (e) => { animationState.speed = 1100 - e.target.value; });
+            document.getElementById('data-input').addEventListener('change', resetVisualizer);
+            const targetInput = document.getElementById('target-input');
+            if (targetInput) targetInput.addEventListener('change', resetVisualizer);
+            
+            const codeSnippet = document.getElementById('code-snippet');
+            if (codeSnippet) {
+                const algoData = algorithms[currentAlgorithm] || (algorithms.hashing && algorithms.hashing.subAlgos[currentAlgorithm]);
+                if (algoData && algoData.code) {
+                    codeSnippet.textContent = typeof algoData.code === 'string' ? algoData.code : algoData.code.c;
+                }
+            }
+            
+            const copyBtn = document.getElementById('copy-code-btn');
+            if (copyBtn) copyBtn.addEventListener('click', copyCodeToClipboard);
+        }
+
+        function copyCodeToClipboard() {
+            const code = document.getElementById('code-snippet').textContent;
+            const btn = document.getElementById('copy-code-btn');
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '복사 완료!';
+                setTimeout(() => { btn.textContent = '코드 복사'; }, 2000);
+            });
+        }
+
+        // --- Visualization & Animation ---
+        function parseInput(inputId) {
+            const inputEl = document.getElementById(inputId);
+            if (!inputEl) return [];
+            return inputEl.value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+        }
+
+        function renderArray(state) {
+            const vizArea = document.getElementById('visualization-area');
+            if (!vizArea) return;
+            vizArea.innerHTML = '';
+            
+            const specialRenderers = {
+                shellSort: renderShellSort,
+                mergeSort: renderMergeSort,
+                quickSort: renderQuickSort,
+                radixSort: renderRadixSort,
+                linearProbing: renderHashTable,
+                quadraticProbing: renderHashTable,
+                doubleHashing: renderHashTable,
+                chaining: renderHashTable
+            };
+
+            if (specialRenderers[currentAlgorithm]) {
+                specialRenderers[currentAlgorithm](state);
+                return;
+            }
+
+            const array = state.array;
+            const maxValue = Math.max(...array, 1);
+            
+            array.forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar flex-grow text-center font-bold text-white rounded-t-md';
+                const height = (value / maxValue) * 90 + 10;
+                bar.style.height = `${height}%`;
+                bar.textContent = value;
+                
+                let bgColors = ['bg-slate-400'];
+                if (state.sorted && state.sorted.includes(index)) bgColors = ['bg-green-500'];
+                if (state.comparing && state.comparing.includes(index)) bgColors = ['bg-yellow-500'];
+                if (state.special && state.special.includes(index)) bgColors = ['bg-orange-500'];
+                if (state.found === index) {
+                    bgColors = ['bg-green-500', 'animate-pulse'];
+                }
+                if (state.pivot === index) bgColors = ['bg-purple-500'];
+                if (state.range && (index < state.range[0] || index > state.range[1])) {
+                    bgColors = ['bg-slate-200'];
+                    bar.classList.add('opacity-50');
+                }
+                bar.classList.add(...bgColors);
+                vizArea.appendChild(bar);
+            });
+        }
+        
+        // --- Enhanced Visualizers ---
+        function renderShellSort(state) {
+            const vizArea = document.getElementById('visualization-area');
+            vizArea.innerHTML = '';
+            const array = state.array;
+            const maxValue = Math.max(...array, 1);
+            const container = document.createElement('div');
+            container.className = 'flex justify-center items-end gap-1 w-full';
+
+            array.forEach((value, index) => {
+                const barWrapper = document.createElement('div');
+                barWrapper.className = 'flex-grow shell-gap-group';
+                
+                const bar = document.createElement('div');
+                bar.className = 'bar text-center font-bold text-white rounded-t-md mx-auto';
+                const height = (value / maxValue) * 90 + 10;
+                bar.style.height = `${height}%`;
+                bar.style.width = '80%';
+                bar.textContent = value;
+                
+                let bgColor = 'bg-slate-400';
+                if (state.comparing && state.comparing.includes(index)) {
+                     bgColor = 'bg-yellow-500';
+                     barWrapper.classList.add('active');
+                }
+                if (state.special && state.special.includes(index)) {
+                    bgColor = 'bg-orange-500';
+                    barWrapper.classList.add('active');
+                }
+                if (state.current_gap_group && state.current_gap_group.includes(index)) {
+                    barWrapper.classList.add('active');
+                }
+                
+                bar.classList.add(bgColor);
+                barWrapper.appendChild(bar);
+                container.appendChild(barWrapper);
+            });
+            vizArea.appendChild(container);
+        }
+        
+        function renderMergeSort(state) {
+            const vizArea = document.getElementById('visualization-area');
+            vizArea.innerHTML = '';
+            if (!state || !state.array) return;
+            const maxValue = Math.max(...state.array, 1);
+
+            function createSubArray(arr, indices, isComparing) {
+                const subArrayDiv = document.createElement('div');
+                subArrayDiv.className = 'sub-array';
+                arr.forEach((val, i) => {
+                    const bar = document.createElement('div');
+                    bar.className = 'sub-bar';
+                    bar.style.height = `${(val / maxValue) * 50 + 10}px`;
+                    if (isComparing && indices && indices.includes(i)) {
+                        bar.classList.add('bg-yellow-500');
+                    }
+                    bar.textContent = val;
+                    subArrayDiv.appendChild(bar);
+                });
+                return subArrayDiv;
+            }
+            
+            if (!state.levels) {
+                const levelDiv = document.createElement('div');
+                levelDiv.className = 'merge-level';
+                levelDiv.appendChild(createSubArray(state.array));
+                vizArea.appendChild(levelDiv);
+                return;
+            }
+
+            state.levels.forEach(level => {
+                const levelDiv = document.createElement('div');
+                levelDiv.className = 'merge-level';
+                level.forEach(group => {
+                    levelDiv.appendChild(createSubArray(group.arr, group.indices, group.isComparing));
+                });
+                vizArea.appendChild(levelDiv);
+            });
+        }
+
+        function renderQuickSort(state) {
+            const vizArea = document.getElementById('visualization-area');
+            vizArea.innerHTML = '';
+            const array = state.array;
+            const maxValue = Math.max(...array, 1);
+            const partitionDiv = document.createElement('div');
+            partitionDiv.className = 'quick-partition flex justify-center items-end gap-1 w-full';
+            if (state.range) {
+                partitionDiv.style.borderLeft = `${state.range[0] * 2.5}rem solid transparent`;
+                partitionDiv.style.borderRight = `${(array.length - 1 - state.range[1]) * 2.5}rem solid transparent`;
+            }
+
+            array.forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar flex-grow text-center font-bold text-white rounded-t-md';
+                const height = (value / maxValue) * 90 + 10;
+                bar.style.height = `${height}%`;
+                bar.textContent = value;
+                
+                let bgColor = 'bg-slate-400';
+                if (state.sorted && state.sorted.includes(index)) bgColor = 'bg-green-500';
+                else if (state.pivot === index) bgColor = 'bg-purple-500';
+                else if (state.comparing && state.comparing.includes(index)) bgColor = 'bg-yellow-500';
+                else if (state.special && state.special.includes(index)) bgColor = 'bg-orange-500';
+
+                if (state.range && (index < state.range[0] || index > state.range[1])) {
+                    bar.classList.add('opacity-30');
+                }
+                
+                bar.classList.add(bgColor);
+                partitionDiv.appendChild(bar);
+            });
+            vizArea.appendChild(partitionDiv);
+        }
+
+        function renderRadixSort(state) {
+            const vizArea = document.getElementById('visualization-area');
+            vizArea.innerHTML = '';
+            const container = document.createElement('div');
+            container.className = 'flex flex-col items-center gap-4';
+
+            const arrayDiv = document.createElement('div');
+            arrayDiv.className = 'flex justify-center items-end gap-1 w-full h-24';
+            state.array.forEach((val, idx) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar flex-grow text-center font-bold text-white rounded-t-md bg-blue-400';
+                bar.style.height = '50%';
+                if (state.special && state.special.includes(idx)) {
+                    bar.classList.add('bg-orange-500');
+                }
+                bar.textContent = val;
+                arrayDiv.appendChild(bar);
+            });
+            container.appendChild(arrayDiv);
+
+            const bucketContainer = document.createElement('div');
+            bucketContainer.className = 'flex justify-around w-full items-end';
+            for (let i = 0; i < 10; i++) {
+                const bucketDiv = document.createElement('div');
+                bucketDiv.className = 'flex flex-col-reverse gap-1 p-1 border rounded min-h-[100px] min-w-[50px] bg-slate-200';
+                const title = document.createElement('div');
+                title.className = 'text-xs font-bold text-center';
+                title.textContent = `[${i}]`;
+                
+                if (state.buckets && state.buckets[i]) {
+                    state.buckets[i].forEach(val => {
+                        const item = document.createElement('div');
+                        item.className = 'bg-blue-500 text-white p-1 rounded text-sm text-center';
+                        item.textContent = val;
+                        bucketDiv.appendChild(item);
+                    });
+                }
+                bucketDiv.appendChild(title);
+                bucketContainer.appendChild(bucketDiv);
+            }
+            container.appendChild(bucketContainer);
+            vizArea.appendChild(container);
+        }
+        
+        function renderHashTable(state) {
+            const vizArea = document.getElementById('visualization-area');
+            vizArea.innerHTML = '';
+            const table = document.createElement('div');
+            table.className = 'hash-table';
+            
+            state.table.forEach((slot, index) => {
+                const slotDiv = document.createElement('div');
+                slotDiv.className = 'hash-slot';
+                if (state.comparing === index) slotDiv.classList.add('comparing');
+                if (state.collided === index) slotDiv.classList.add('collided');
+                
+                const indexSpan = document.createElement('span');
+                indexSpan.className = 'slot-index';
+                indexSpan.textContent = index;
+                slotDiv.appendChild(indexSpan);
+
+                if (currentAlgorithm === 'chaining') {
+                    if (slot && slot.length > 0) {
+                        slot.forEach(val => {
+                            const item = document.createElement('div');
+                            item.className = 'chain-item';
+                            item.textContent = val;
+                            slotDiv.appendChild(item);
+                        });
+                    }
+                } else {
+                    if (slot !== null) {
+                        slotDiv.textContent = slot;
+                        slotDiv.appendChild(indexSpan); // re-append index
+                        slotDiv.classList.add('occupied');
+                    }
+                }
+                table.appendChild(slotDiv);
+            });
+            vizArea.appendChild(table);
+        }
+
+        function updateLog(log, currentStep) {
+            const logArea = document.getElementById('log-area');
+            if(!logArea) return;
+            logArea.innerHTML = '';
+            log.forEach((entry, index) => {
+                const p = document.createElement('p');
+                p.textContent = entry;
+                p.className = 'log-item p-1 rounded text-sm';
+                if (index === currentStep) {
+                    p.classList.add('active', 'font-bold');
+                    p.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                logArea.appendChild(p);
+            });
+        }
+        
+        function resetVisualizer() {
+            resetAnimation();
+            const initialArray = parseInput('data-input');
+            if (currentAlgorithm && (currentAlgorithm.includes('Probing') || currentAlgorithm === 'chaining')) {
+                const size = algorithms.hashing.subAlgos[currentAlgorithm].tableSize;
+                renderHashTable({ table: (currentAlgorithm === 'chaining') ? Array.from({length: size}, () => []) : Array(size).fill(null) });
+            } else if (currentAlgorithm === 'mergeSort') {
+                renderArray({ array: initialArray, levels: [[{ arr: initialArray, offset: 0 }]] });
+            }
+             else {
+                 renderArray({ array: initialArray });
+            }
+            if (document.getElementById('log-area')) {
+                document.getElementById('log-area').innerHTML = '';
+            }
+            const summaryDiv = document.getElementById('collision-summary');
+            if (summaryDiv) summaryDiv.textContent = '';
+        }
+        
+        function updateControls(isPlaying, isFinished) {
+            const startBtn = document.getElementById('start-btn');
+            if (startBtn) {
+                startBtn.disabled = isPlaying || isFinished;
+                document.getElementById('pause-btn').disabled = !isPlaying || isFinished;
+                document.getElementById('step-btn').disabled = isPlaying || isFinished;
+                document.getElementById('data-input').disabled = isPlaying;
+                const targetInput = document.getElementById('target-input');
+                if (targetInput) targetInput.disabled = isPlaying;
+            }
+        }
+
+        function startAnimation() {
+            if (animationState.isPlaying) return;
+            if (!animationState.isPaused) {
+                const algoFunction = getAlgorithmFunction(currentAlgorithm);
+                if (!algoFunction) return;
+                const array = parseInput('data-input');
+                let target = null;
+                const mainAlgo = algorithms[currentAlgorithm];
+                if (mainAlgo && mainAlgo.type === 'search') {
+                    target = parseInt(document.getElementById('target-input').value);
+                }
+                animationState.steps = algoFunction(array, target);
+                animationState.currentStep = 0;
+            }
+            animationState.isPlaying = true;
+            animationState.isPaused = false;
+            updateControls(true, false);
+            animateStep();
+        }
+
+        function pauseAnimation() {
+            animationState.isPlaying = false;
+            animationState.isPaused = true;
+            clearTimeout(animationState.timeoutId);
+            updateControls(false, false);
+        }
+
+        function stepAnimation() {
+            if (animationState.currentStep === 0 && !animationState.isPaused) {
+                 const algoFunction = getAlgorithmFunction(currentAlgorithm);
+                 if (!algoFunction) return;
+                 const array = parseInput('data-input');
+                 let target = null;
+                 const mainAlgo = algorithms[currentAlgorithm];
+                 if (mainAlgo && mainAlgo.type === 'search') {
+                    target = parseInt(document.getElementById('target-input').value);
+                 }
+                 animationState.steps = algoFunction(array, target);
+            }
+            if (animationState.steps && animationState.currentStep < animationState.steps.length) {
+                const step = animationState.steps[animationState.currentStep];
+                renderArray(step.state);
+                updateLog(animationState.steps.map(s => s.log), animationState.currentStep);
+                animationState.currentStep++;
+            }
+            if (!animationState.steps || animationState.currentStep >= animationState.steps.length) {
+                updateControls(false, true);
+            }
+        }
+        
+        function animateStep() {
+            if (!animationState.isPlaying) return;
+            if (!animationState.steps || animationState.currentStep >= animationState.steps.length) {
+                resetAnimation();
+                updateControls(false, true);
+                const finalStep = animationState.steps ? animationState.steps[animationState.steps.length - 1] : null;
+                if (finalStep) {
+                    let finalState = { ...finalStep.state };
+                    if (finalStep.state.array) {
+                       finalState.sorted = finalStep.state.array.map((_, i) => i);
+                    }
+                    if (finalStep.state.found !== undefined) finalState.found = finalStep.state.found;
+                    if (finalStep.summary) {
+                        const summaryDiv = document.getElementById('collision-summary');
+                        if (summaryDiv) summaryDiv.textContent = finalStep.summary;
+                    }
+                    renderArray(finalState);
+                }
+                return;
+            }
+            const step = animationState.steps[animationState.currentStep];
+            renderArray(step.state);
+            updateLog(animationState.steps.map(s => s.log), animationState.currentStep);
+            animationState.currentStep++;
+            animationState.timeoutId = setTimeout(animateStep, animationState.speed);
+        }
+        
+        function resetAnimation() {
+            clearTimeout(animationState.timeoutId);
+            animationState = { ...animationState, isPlaying: false, isPaused: false, steps: [], currentStep: 0, timeoutId: null };
+            updateControls(false, false);
+        }
+
+        // --- Algorithm Logic (Step Generation) ---
+        const deepCopy = (obj) => JSON.parse(JSON.stringify(obj));
+
+        function getAlgorithmFunction(algoKey) {
+            const functions = {
+                bubbleSort: generateBubbleSortSteps,
+                selectionSort: generateSelectionSortSteps,
+                insertionSort: generateInsertionSortSteps,
+                shellSort: generateShellSortSteps,
+                mergeSort: generateMergeSortSteps,
+                quickSort: generateQuickSortSteps,
+                radixSort: generateRadixSortSteps,
+                sequentialSearch: generateSequentialSearchSteps,
+                binarySearch: generateBinarySearchSteps,
+                interpolationSearch: generateInterpolationSearchSteps,
+                linearProbing: generateHashingSteps,
+                quadraticProbing: generateHashingSteps,
+                doubleHashing: generateHashingSteps,
+                chaining: generateHashingSteps,
+            };
+            return functions[algoKey];
+        }
+        
+        function generateBubbleSortSteps(array) {
+            const steps = []; let arr = [...array]; let n = arr.length; let sortedIndices = [];
+            steps.push({ state: { array: [...arr], comparing: [], sorted: [] }, log: "정렬을 시작합니다." });
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    steps.push({ state: { array: [...arr], comparing: [j, j + 1], sorted: [...sortedIndices] }, log: `${i + 1}회전: ${arr[j]}와(과) ${arr[j+1]}을(를) 비교합니다.` });
+                    if (arr[j] > arr[j + 1]) {
+                        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+                        steps.push({ state: { array: [...arr], comparing: [j, j + 1], sorted: [...sortedIndices] }, log: `${arr[j+1]}이(가) 더 크므로 위치를 교환합니다.` });
+                    }
+                }
+                sortedIndices.push(n - 1 - i);
+                steps.push({ state: { array: [...arr], comparing: [], sorted: [...sortedIndices] }, log: `${i + 1}회전 종료. 가장 큰 값 ${arr[n-1-i]}이(가) 제자리를 찾았습니다.` });
+            }
+            sortedIndices.push(0);
+            steps.push({ state: { array: [...arr], comparing: [], sorted: [...sortedIndices] }, log: "정렬이 완료되었습니다." });
+            return steps;
+        }
+
+        function generateSelectionSortSteps(array) {
+            const steps = []; let arr = [...array]; let n = arr.length; let sortedIndices = [];
+            steps.push({ state: { array: [...arr], sorted: [] }, log: "정렬을 시작합니다." });
+            for (let i = 0; i < n - 1; i++) {
+                let minIdx = i;
+                steps.push({ state: { array: [...arr], special: [minIdx], sorted: [...sortedIndices] }, log: `${i + 1}회전: ${i}번 위치에 들어갈 가장 작은 값을 찾습니다.` });
+                for (let j = i + 1; j < n; j++) {
+                    steps.push({ state: { array: [...arr], comparing: [j], special: [minIdx], sorted: [...sortedIndices] }, log: `현재 최소값 ${arr[minIdx]}와(과) ${arr[j]}을(를) 비교합니다.` });
+                    if (arr[j] < arr[minIdx]) {
+                        minIdx = j;
+                        steps.push({ state: { array: [...arr], comparing: [j], special: [minIdx], sorted: [...sortedIndices] }, log: `${arr[j]}이(가) 더 작으므로 최소값을 갱신합니다.` });
+                    }
+                }
+                steps.push({ state: { array: [...arr], comparing: [i, minIdx], special: [], sorted: [...sortedIndices] }, log: `최소값 ${arr[minIdx]}을(를) ${i}번 위치의 ${arr[i]}와(과) 교환합니다.` });
+                [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+                sortedIndices.push(i);
+                steps.push({ state: { array: [...arr], special: [], sorted: [...sortedIndices] }, log: `${i}번 위치가 확정되었습니다.` });
+            }
+            steps.push({ state: { array: [...arr], sorted: arr.map((_, i) => i) }, log: "정렬이 완료되었습니다." });
+            return steps;
+        }
+        
+        function generateInsertionSortSteps(array) {
+            const steps = []; let arr = [...array]; let n = arr.length; let sortedIndices = [0];
+            steps.push({ state: { array: [...arr], sorted: [0] }, log: "정렬을 시작합니다. 첫 번째 요소는 정렬된 것으로 간주합니다." });
+            for (let i = 1; i < n; i++) {
+                let key = arr[i]; let j = i - 1;
+                steps.push({ state: { array: [...arr], special: [i], sorted: [...sortedIndices] }, log: `${key}을(를) 정렬된 부분에 삽입합니다.` });
+                while (j >= 0 && arr[j] > key) {
+                    steps.push({ state: { array: [...arr], comparing: [j], special: [i], sorted: [...sortedIndices] }, log: `${key}이(가) ${arr[j]}보다 작으므로 ${arr[j]}을(를) 오른쪽으로 이동합니다.` });
+                    arr[j + 1] = arr[j]; j--;
+                    steps.push({ state: { array: [...arr], comparing: [], special: [i], sorted: [...sortedIndices] }, log: `이동 완료.` });
+                }
+                arr[j + 1] = key; sortedIndices.push(i); sortedIndices.sort((a,b)=>a-b);
+                steps.push({ state: { array: [...arr], special: [], sorted: [...sortedIndices] }, log: `빈 자리에 ${key}을(를) 삽입합니다.` });
+            }
+            steps.push({ state: { array: [...arr], sorted: arr.map((_, i) => i) }, log: "정렬이 완료되었습니다." });
+            return steps;
+        }
+        
+        function generateShellSortSteps(array) {
+            const steps = []; let arr = [...array]; let n = arr.length;
+            steps.push({ state: { array: [...arr] }, log: "쉘 정렬을 시작합니다." });
+            for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+                steps.push({ state: { array: [...arr] }, log: `간격(Gap) = ${gap}으로 부분 리스트 정렬을 시작합니다.` });
+                for (let i = gap; i < n; i++) {
+                    const current_gap_group = [];
+                    for(let k=i%gap; k<n; k+=gap) current_gap_group.push(k);
+                    let temp = arr[i]; let j = i;
+                    steps.push({ state: { array: [...arr], special: [j], current_gap_group }, log: `${arr[j]}을(를) 간격(${gap})에 맞춰 삽입할 위치를 찾습니다.` });
+                    while (j >= gap && arr[j - gap] > temp) {
+                        steps.push({ state: { array: [...arr], comparing: [j, j - gap], special: [j], current_gap_group }, log: `${arr[j-gap]}이(가) ${temp}보다 크므로 이동합니다.` });
+                        arr[j] = arr[j - gap]; j -= gap;
+                    }
+                    arr[j] = temp;
+                    steps.push({ state: { array: [...arr], special: [j], current_gap_group }, log: `${temp}을(를) ${j}번 위치에 삽입했습니다.` });
+                }
+            }
+            steps.push({ state: { array: [...arr], sorted: arr.map((_, i) => i) }, log: "정렬이 완료되었습니다." });
+            return steps;
+        }
+
+        function generateMergeSortSteps(array) {
+            const steps = []; let arr = [...array];
+            let levels = [[{arr: [...arr], offset: 0}]];
+            
+            steps.push({ state: { array: [...arr], levels: deepCopy(levels) }, log: "합병 정렬을 시작합니다." });
+
+            // 분할 과정
+            let currentLevel = levels[0];
+            while(currentLevel.some(group => group.arr.length > 1)) {
+                const nextLevel = [];
+                currentLevel.forEach(group => {
+                    if (group.arr.length > 1) {
+                        const middle = Math.ceil(group.arr.length / 2);
+                        nextLevel.push({ arr: group.arr.slice(0, middle), offset: group.offset });
+                        nextLevel.push({ arr: group.arr.slice(middle), offset: group.offset + middle });
+                    } else {
+                        nextLevel.push(group);
+                    }
+                });
+                levels.push(nextLevel);
+                steps.push({ state: { array: [...arr], levels: deepCopy(levels) }, log: `배열을 더 작은 단위로 분할합니다.` });
+                currentLevel = nextLevel;
+            }
+
+            // 합병 과정
+            for (let i = levels.length - 2; i >= 0; i--) {
+                for (let j = 0; j < levels[i+1].length; j += 2) {
+                    const leftGroup = levels[i+1][j];
+                    const rightGroup = levels[i+1][j+1];
+                    
+                    const left = leftGroup.arr;
+                    const right = rightGroup ? rightGroup.arr : [];
+                    const offset = leftGroup.offset;
+
+                    let result = [], l = 0, r = 0;
+                    
+                    levels[i+1][j].isComparing = true;
+                    if(rightGroup) levels[i+1][j+1].isComparing = true;
+                    steps.push({ state: { array: [...arr], levels: deepCopy(levels) }, log: `[${left}]와(과) [${right}]를 합병합니다.` });
+                    
+                    while (l < left.length && r < right.length) {
+                        if (left[l] <= right[r]) {
+                            result.push(left[l++]);
+                        } else {
+                            result.push(right[r++]);
+                        }
+                    }
+                    result = result.concat(left.slice(l)).concat(right.slice(r));
+                    
+                    for(let k=0; k<result.length; k++) {
+                        arr[offset + k] = result[k];
+                    }
+                    
+                    levels[i].find(g => g.offset === offset).arr = result;
+                    delete levels[i+1][j].isComparing;
+                    if(rightGroup) delete levels[i+1][j+1].isComparing;
+                    steps.push({ state: { array: [...arr], levels: deepCopy(levels) }, log: `합병 결과: [${result}]` });
+                }
+            }
+            
+            steps.push({ state: { array: [...arr], levels: [], sorted: arr.map((_, i) => i) }, log: "정렬이 완료되었습니다." });
+            return steps;
+        }
+
+        function generateQuickSortSteps(array) {
+            const steps = []; let arr = [...array];
+            function quickSortRecursive(low, high) {
+                if (low < high) {
+                    const pi = partition(low, high);
+                    quickSortRecursive(low, pi - 1);
+                    quickSortRecursive(pi + 1, high);
+                }
+            }
+            function partition(low, high) {
+                const pivot = arr[low];
+                let i = high + 1;
+                steps.push({ state: { array: [...arr], pivot: low, range: [low, high] }, log: `범위 [${low}~${high}]의 피벗으로 ${pivot}을(를) 선택합니다.` });
+
+                for (let j = high; j > low; j--) {
+                    steps.push({ state: { array: [...arr], comparing: [j], pivot: low, special: i <= high ? [i-1] : [], range: [low, high] }, log: `${arr[j]}와 피벗 ${pivot}을(를) 비교합니다.` });
+                    if (arr[j] > pivot) {
+                        i--;
+                        steps.push({ state: { array: [...arr], comparing: [i, j], pivot: low, range: [low, high] }, log: `${arr[j]}이(가) 피벗보다 크므로 ${arr[i]}와(과) 교환합니다.` });
+                        [arr[i], arr[j]] = [arr[j], arr[i]];
+                        steps.push({ state: { array: [...arr], comparing: [], pivot: low, range: [low, high] }, log: `교환 완료.` });
+                    }
+                }
+                steps.push({ state: { array: [...arr], comparing: [i - 1, low], pivot: low, range: [low, high] }, log: `피벗 ${arr[low]}을(를) ${arr[i-1]}와(과) 교환하여 제자리를 찾습니다.` });
+                [arr[i - 1], arr[low]] = [arr[low], arr[i - 1]];
+                steps.push({ state: { array: [...arr], sorted: [i-1], range: [low, high] }, log: `피벗 ${pivot}의 위치가 확정되었습니다.` });
+                return i - 1;
+            }
+            steps.push({ state: { array: [...arr] }, log: "퀵 정렬을 시작합니다." });
+            quickSortRecursive(0, arr.length - 1);
+            steps.push({ state: { array: [...arr], sorted: arr.map((_, i) => i) }, log: "정렬이 완료되었습니다." });
+            return steps;
+        }
+
+        function generateRadixSortSteps(array) {
+            const steps = []; let arr = [...array]; const maxNum = Math.max(...arr, 0); let exp = 1;
+            steps.push({ state: { array: [...arr] }, log: "기수 정렬을 시작합니다." });
+            while (Math.floor(maxNum / exp) > 0) {
+                let buckets = Array.from({ length: 10 }, () => []);
+                steps.push({ state: { array: [...arr], buckets: deepCopy(buckets) }, log: `${exp}의 자릿수에 대해 정렬을 시작합니다.` });
+                for (let i = 0; i < arr.length; i++) {
+                    const digit = Math.floor(arr[i] / exp) % 10;
+                    buckets[digit].push(arr[i]);
+                    steps.push({ state: { array: [...arr], buckets: deepCopy(buckets), special: [i] }, log: `${arr[i]}을(를) ${digit}번 버킷에 넣습니다.` });
+                }
+                let arrIndex = 0;
+                steps.push({ state: { array: [...arr], buckets: deepCopy(buckets) }, log: `버킷에서 순서대로 데이터를 다시 가져옵니다.` });
+                for (let i = 0; i < 10; i++) {
+                    while (buckets[i].length > 0) {
+                        arr[arrIndex] = buckets[i].shift();
+                        steps.push({ state: { array: [...arr], buckets: deepCopy(buckets) }, log: `${arr[arrIndex]}을(를) 배열의 ${arrIndex}번 위치로 이동합니다.` });
+                        arrIndex++;
+                    }
+                }
+                exp *= 10;
+            }
+            steps.push({ state: { array: [...arr], sorted: arr.map((_, i) => i) }, log: "정렬이 완료되었습니다." });
+            return steps;
+        }
+
+        function generateSequentialSearchSteps(array, target) {
+            const steps = []; let arr = [...array];
+            steps.push({ state: { array: [...arr] }, log: `탐색을 시작합니다. 찾을 값: ${target}` });
+            for (let i = 0; i < arr.length; i++) {
+                steps.push({ state: { array: [...arr], comparing: [i] }, log: `${i}번 인덱스의 ${arr[i]}와(과) ${target}을(를) 비교합니다.` });
+                if (arr[i] === target) {
+                    steps.push({ state: { array: [...arr], found: i }, log: `값을 찾았습니다! 탐색 성공.` });
+                    return steps;
+                }
+            }
+            steps.push({ state: { array: [...arr] }, log: `끝까지 값을 찾지 못했습니다. 탐색 실패.` });
+            return steps;
+        }
+
+        function generateBinarySearchSteps(array, target) {
+            const steps = []; let arr = [...array]; let low = 0; let high = arr.length - 1;
+            steps.push({ state: { array: [...arr], range: [low, high] }, log: `탐색을 시작합니다. 찾을 값: ${target}` });
+            while (low <= high) {
+                let mid = Math.floor((low + high) / 2);
+                steps.push({ state: { array: [...arr], comparing: [mid], range: [low, high] }, log: `범위(${low}~${high})의 중간값 ${arr[mid]}와(과) 비교합니다.` });
+                if (arr[mid] === target) {
+                    steps.push({ state: { array: [...arr], found: mid, range: [low, high] }, log: `값을 찾았습니다! 탐색 성공.` });
+                    return steps;
+                } else if (arr[mid] < target) {
+                    low = mid + 1;
+                    steps.push({ state: { array: [...arr], range: [low, high] }, log: `${target}이(가) 더 크므로 왼쪽 절반을 버립니다.` });
+                } else {
+                    high = mid - 1;
+                    steps.push({ state: { array: [...arr], range: [low, high] }, log: `${target}이(가) 더 작으므로 오른쪽 절반을 버립니다.` });
+                }
+            }
+            steps.push({ state: { array: [...arr] }, log: `끝까지 값을 찾지 못했습니다. 탐색 실패.` });
+            return steps;
+        }
+
+        function generateInterpolationSearchSteps(array, target) {
+            const steps = []; let arr = [...array]; let low = 0; let high = arr.length - 1;
+            steps.push({ state: { array: [...arr], range: [low, high] }, log: `보간 탐색을 시작합니다. 찾을 값: ${target}` });
+            while (low <= high && target >= arr[low] && target <= arr[high]) {
+                if (low === high) {
+                    if (arr[low] === target) steps.push({ state: { array: [...arr], found: low }, log: "값을 찾았습니다! 탐색 성공." });
+                    else steps.push({ state: { array: [...arr] }, log: "값을 찾지 못했습니다. 탐색 실패." });
+                    return steps;
+                }
+                let pos = low + Math.floor(((high - low) / (arr[high] - arr[low])) * (target - arr[low]));
+                if (pos < low || pos > high) { // 예측 위치가 범위를 벗어나는 경우 방지
+                    steps.push({ state: { array: [...arr], range: [low, high] }, log: `예측 위치(${pos})가 범위를 벗어나 순차 탐색으로 전환합니다.` });
+                    break; 
+                }
+                steps.push({ state: { array: [...arr], comparing: [pos], range: [low, high] }, log: `범위(${low}~${high})에서 위치를 예측(${pos})하여 ${arr[pos]}와(과) 비교합니다.` });
+                if (arr[pos] === target) {
+                    steps.push({ state: { array: [...arr], found: pos, range: [low, high] }, log: "값을 찾았습니다! 탐색 성공." });
+                    return steps;
+                }
+                if (arr[pos] < target) {
+                    low = pos + 1;
+                    steps.push({ state: { array: [...arr], range: [low, high] }, log: `${target}이(가) 더 크므로 탐색 범위를 [${low}, ${high}]로 좁힙니다.` });
+                } else {
+                    high = pos - 1;
+                    steps.push({ state: { array: [...arr], range: [low, high] }, log: `${target}이(가) 더 작으므로 탐색 범위를 [${low}, ${high}]로 좁힙니다.` });
+                }
+            }
+            steps.push({ state: { array: [...arr] }, log: "탐색 범위 내에 값이 없습니다. 탐색 실패." });
+            return steps;
+        }
+        
+        function generateHashingSteps(array) {
+            const steps = [];
+            const subAlgo = algorithms.hashing.subAlgos[currentAlgorithm];
+            const size = subAlgo.tableSize;
+            let table = (currentAlgorithm === 'chaining') ? Array.from({length: size}, () => []) : Array(size).fill(null);
+            let collisionCount = 0;
+            let collisionDetails = {};
+            
+            steps.push({ state: { table: deepCopy(table) }, log: `${subAlgo.name}을(를) 시작합니다.`});
+
+            for (const key of array) {
+                let hash = key % size;
+                steps.push({ state: { table: deepCopy(table), comparing: hash }, log: `데이터 ${key} 삽입 시도. 초기 해시 값: ${hash}` });
+
+                if (currentAlgorithm === 'chaining') {
+                    if (table[hash].length > 0) {
+                        collisionCount++;
+                        collisionDetails[hash] = (collisionDetails[hash] || 0) + 1;
+                        steps.push({ state: { table: deepCopy(table), collided: hash }, log: `충돌 발생! ${hash}번 인덱스에 체이닝합니다.` });
+                    }
+                    table[hash].push(key);
+                    steps.push({ state: { table: deepCopy(table) }, log: `${key}을(를) ${hash}번 인덱스에 삽입(체이닝)했습니다.` });
+                } else {
+                    let i = 0;
+                    let currentPos = hash;
+                    while (table[currentPos] !== null) {
+                        collisionCount++;
+                        collisionDetails[currentPos] = (collisionDetails[currentPos] || 0) + 1;
+                        steps.push({ state: { table: deepCopy(table), collided: currentPos }, log: `충돌 발생! ${currentPos}번 인덱스는 이미 사용 중입니다.` });
+                        i++;
+                        if (currentAlgorithm === 'linearProbing') {
+                            currentPos = (hash + i) % size;
+                        } else if (currentAlgorithm === 'quadraticProbing') {
+                            currentPos = (hash + i*i) % size;
+                        } else if (currentAlgorithm === 'doubleHashing') {
+                            const h2 = 5 - (key % 5); // From PDF example
+                            currentPos = (hash + i * h2) % size;
+                        }
+                        steps.push({ state: { table: deepCopy(table), comparing: currentPos }, log: `다음 위치 ${currentPos}을(를) 조사합니다.` });
+                    }
+                    table[currentPos] = key;
+                    steps.push({ state: { table: deepCopy(table) }, log: `${key}을(를) ${currentPos}번 인덱스에 삽입했습니다.` });
+                }
+            }
+            let summary = `총 ${collisionCount}번의 충돌이 발생했습니다.`;
+            const details = Object.entries(collisionDetails).map(([idx, count]) => `${idx}번(${count}회)`).join(', ');
+            if (details) {
+                summary += ` (세부: ${details})`;
+            }
+            steps.push({ state: { table: deepCopy(table) }, log: `모든 데이터 삽입이 완료되었습니다.`, summary: summary });
+            return steps;
+        }
+
+        // --- Initial Setup ---
+        window.onload = () => {
+            showPage('home');
+            document.querySelectorAll('#sorting-nav .nav-item').forEach(item => {
+                item.addEventListener('click', (e) => selectAlgorithm(e.target.dataset.algo));
+            });
+            document.querySelectorAll('#searching-nav .nav-item').forEach(item => {
+                item.addEventListener('click', (e) => selectAlgorithm(e.target.dataset.algo));
+            });
+        };
+    </script>
+</body>
+</html>
