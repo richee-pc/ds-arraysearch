@@ -62,11 +62,11 @@ st.title("🚀 ALGORITHM LAB")
 st.markdown("### 시각적 도구를 통해 **정렬, 탐색, 해싱** 알고리즘의 세계를 탐험하세요!")
 
 # 두 개의 학습 콘텐츠를 위한 탭을 생성합니다.
-tab1, tab2 = st.tabs(["👾효율적인 알고리즘", "✅ [수행평가] 탐색 & 해싱 알고리즘 챌린지"])
+tab1, tab2 = st.tabs([" 👾효율적인 알고리즘 ", " 🏁 [수행평가] 탐색 & 해싱 알고리즘 챌린지 "])
 
 # 첫 번째 탭: 기존의 정렬 알고리즘 시각화 (index.html)
 with tab1:
-    st.header("👾효율적인 알고리즘")
+    st.header(" 👾효율적인 알고리즘 ")
     
     # index.html 파일 경로 설정
     filepath1 = os.path.join(os.path.dirname(__file__), "htmls", "index.html")
@@ -81,7 +81,7 @@ with tab1:
 
 # 두 번째 탭: 새로운 탐색 & 해싱 알고리즘 챌린지 (index2.html)
 with tab2:
-    st.header("✅ [수행평가] 탐색 & 해싱 알고리즘 챌린지")
+    st.header(" 🏁 [수행평가] 탐색 & 해싱 알고리즘 챌린지 ")
 
     # index2.html 파일 경로 설정
     filepath2 = os.path.join(os.path.dirname(__file__), "htmls", "index2.html")
