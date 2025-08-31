@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>알고리즘 탐구 챌린지!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Orbitron:wght@900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'IBM Plex Sans KR', sans-serif;
+            background-color: #111827; /* Dark background */
+            color: #f3f4f6;
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .glass-card {
+            background: rgba(31, 41, 55, 0.5); /* Semi-transparent dark background */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            background: rgba(55, 65, 81, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+        .prompt-container {
+            position: relative;
+        }
+        .prompt {
+            background-color: #1f2937; /* Darker prompt background */
+            border-left: 4px solid #818cf8; /* Indigo accent */
+            padding: 12px;
+            padding-right: 4.5rem; /* Space for the button */
+            border-radius: 4px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.9em;
+            color: #d1d5db;
+        }
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        .modal-active {
+            overflow: hidden;
+        }
+        #mission-sheet-content h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #a5b4fc;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        #mission-sheet-content p {
+            color: #d1d5db;
+            margin-bottom: 0.5rem;
+        }
+        #mission-sheet-content strong {
+            color: #c7d2fe;
+        }
+        .header-bg {
+            animation: gradient-animation 10s ease infinite;
+            background-size: 200% 200%;
+        }
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100">
+
+    <!-- Header -->
+    <header class="header-bg bg-gradient-to-r from-purple-600 to-indigo-700 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <h1 class="font-orbitron text-3xl md:text-5xl font-black tracking-tight">ALGORITHM QUEST!</h1>
+            <p class="text-indigo-200 mt-2 text-lg animate-pulse">AI 파트너와 함께 실생활 문제를 해결하라!</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-12">
+
+        <!-- Section 1: Assessment Overview -->
+        <section id="overview" class="mb-20">
+            <h2 class="text-3xl font-bold mb-8 text-center"><span class="text-indigo-400">MISSION</span> BRIEFING</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass-card p-6 rounded-lg text-center">
+                    <div class="flex justify-center mb-4"><svg class="w-12 h-12 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg></div>
+                    <h3 class="font-bold text-lg mb-2">챌린지 이름</h3>
+                    <p class="text-gray-300">탐색 & 해싱 알고리즘 심화 탐구</p>
+                </div>
+                <div class="glass-card p-6 rounded-lg text-center">
+                    <div class="flex justify-center mb-4"><svg class="w-12 h-12 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg></div>
+                    <h3 class="font-bold text-lg mb-2">핵심 목표</h3>
+                    <p class="text-gray-300">3개 이상 자료구조를 활용하여 실생활 문제 해결책 설계 및 분석</p>
+                </div>
+                <div class="glass-card p-6 rounded-lg text-center">
+                    <div class="flex justify-center mb-4"><svg class="w-12 h-12 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>
+                    <h3 class="font-bold text-lg mb-2">수행 기간</h3>
+                    <p class="text-gray-300">자기주도 학습 과제</p>
+                </div>
+                <div class="glass-card p-6 rounded-lg text-center">
+                    <div class="flex justify-center mb-4"><svg class="w-12 h-12 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></div>
+                    <h3 class="font-bold text-lg mb-2">평가 내용</h3>
+                    <p class="text-gray-300">주제 분석, 해결책 고안, 자료구조 심층 분석 능력</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Assessment Process -->
+        <section id="process" class="mb-20">
+            <h2 class="text-3xl font-bold mb-8 text-center">QUEST <span class="text-green-400">STAGES</span></h2>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-8">
+                <div class="glass-card p-8 rounded-xl text-center flex-1">
+                    <div class="text-5xl font-bold text-green-400 mb-4">1</div>
+                    <h3 class="font-bold text-xl mb-3">주제 선정 & 활동지 변환</h3>
+                    <p class="text-gray-300">실생활 문제를 탐색하고 주제를 선정한 뒤, '미션 활동지'를 Google Docs로 변환하라!</p>
+                </div>
+                <svg class="w-12 h-12 text-gray-600 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                <div class="glass-card p-8 rounded-xl text-center flex-1">
+                    <div class="text-5xl font-bold text-green-400 mb-4">2</div>
+                    <h3 class="font-bold text-xl mb-3">AI와 협업하여 초안 작성</h3>
+                    <p class="text-gray-300">주제가 담긴 활동지를 AI에게 첨부하여, 문제 해결에 필요한 자료구조를 추천받고 분석하라!</p>
+                </div>
+                 <svg class="w-12 h-12 text-gray-600 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                <div class="glass-card p-8 rounded-xl text-center flex-1">
+                    <div class="text-5xl font-bold text-green-400 mb-4">3</div>
+                    <h3 class="font-bold text-xl mb-3">심화 탐구 및 최종 제출</h3>
+                    <p class="text-gray-300">AI의 도움을 바탕으로 자신만의 분석과 아이디어를 더해 최종 활동지를 완성하고 제출하라!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Forms -->
+        <section id="forms" class="mb-20 text-center">
+            <h2 class="text-3xl font-bold mb-4">YOUR <span class="text-purple-400">MISSION</span> SHEET</h2>
+            <p class="text-gray-400 mb-8">모든 퀘스트의 결과는 이 활동지에 기록됩니다.</p>
+            <button onclick="openModal('modal-form1')" class="bg-purple-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-purple-500/50">
+                활동지 보기 & 복사하기
+            </button>
+        </section>
+        
+        <!-- Section 4: AI Assistant Guide -->
+        <section id="ai-guide" class="mb-20">
+            <h2 class="text-3xl font-bold mb-8 text-center">🚀 <span class="text-yellow-400">LEVEL UP</span> with Your AI Partner!</h2>
+            <p class="mb-10 text-gray-400 text-center max-w-2xl mx-auto">AI 파트너와 함께라면 복잡한 문제도 쉽게 해결할 수 있습니다. 아래의 공략법을 따라 퀘스트를 완수하세요.</p>
+            <div class="glass-card p-8 rounded-lg">
+                <h3 class="font-bold text-xl mb-4 text-yellow-400 text-center">AI 파트너 협업 가이드</h3>
+                <ol class="list-decimal list-inside space-y-4 text-gray-300">
+                    <li><strong>[1단계] 활동지 준비:</strong> '활동지 보기 & 복사하기' 버튼을 눌러 내용을 전체 복사한 후, 자신의 구글 드라이브에서 '새 문서'를 만들어 붙여넣으세요.</li>
+                    <li><strong>[2단계] AI와 주제 탐색:</strong> 어떤 주제를 탐구할지 막막하다면, AI에게 아이디어를 물어보며 탐구의 첫걸음을 시작하세요.</li>
+                    <li><strong>[3단계] 주제 선정 및 기록:</strong> AI와 논의한 아이디어를 바탕으로 가장 흥미로운 주제를 결정하고, 활동지의 '탐구 주제' 칸에 구체적으로 작성합니다.</li>
+                    <li><strong>[4단계] AI에게 파일 첨부 및 심층 분석:</strong> 주제가 작성된 활동지 파일을 AI와의 대화창에 첨부하고, 아래와 같이 질문하여 탐구를 심화하세요!</li>
+                </ol>
+                <p class="font-semibold text-gray-200 mt-8 mb-2">이렇게 질문해보세요: (우측 버튼으로 복사)</p>
+                <div class="prompt-container mb-4">
+                    <div id="prompt1" class="prompt"><strong>(주제 탐색)</strong> "탐색 알고리즘과 해싱을 활용해서 해결할 수 있는 흥미로운 실생활 문제 아이디어 5가지를 추천해줘."</div>
+                    <button onclick="copyPrompt('prompt1', this)" class="absolute top-1/2 right-3 transform -translate-y-1/2 bg-gray-700 text-gray-300 text-xs font-mono py-1 px-2 rounded hover:bg-gray-600 transition-colors">복사</button>
+                </div>
+                <div class="prompt-container mb-4">
+                    <div id="prompt2" class="prompt"><strong>(심층 분석)</strong> "첨부한 탐구 활동지의 주제는 '실시간 인기 검색어 순위 시스템'입니다. 이 문제를 해결하기 위해 활용할 수 있는 자료구조 3가지를 추천하고, 각 자료구조를 선택한 이유를 설명해주세요."</div>
+                    <button onclick="copyPrompt('prompt2', this)" class="absolute top-1/2 right-3 transform -translate-y-1/2 bg-gray-700 text-gray-300 text-xs font-mono py-1 px-2 rounded hover:bg-gray-600 transition-colors">복사</button>
+                </div>
+                <div class="prompt-container">
+                    <div id="prompt3" class="prompt"><strong>(심층 분석)</strong> "추천받은 자료구조 중 '해시 테이블'에 대해 더 알고 싶습니다. 해시 테이블의 정의, 주요 특징, 시간 복잡도를 활동지 양식에 맞게 심층적으로 분석해주세요."</div>
+                    <button onclick="copyPrompt('prompt3', this)" class="absolute top-1/2 right-3 transform -translate-y-1/2 bg-gray-700 text-gray-300 text-xs font-mono py-1 px-2 rounded hover:bg-gray-600 transition-colors">복사</button>
+                </div>
+            </div>
+            <div class="mt-12 bg-yellow-900 bg-opacity-30 border-l-4 border-yellow-500 text-yellow-300 p-4 rounded-r-lg" role="alert">
+                <p class="font-bold text-lg">⚠️ AI 파트너 활용 규칙!</p>
+                <ul class="list-disc list-inside mt-2 text-yellow-200">
+                    <li>AI의 분석 내용을 그대로 복사하지 말고, <strong class="font-semibold">자신의 언어로 이해하고 재정리</strong>하는 과정이 필수입니다.</li>
+                    <li>AI의 답변에 대해 <strong class="font-semibold">'왜?'라는 추가 질문</strong>을 던지며 더 깊이 탐구하세요.</li>
+                    <li>최종 결과물은 여러분의 창의적인 아이디어와 심층적인 분석이 담긴 <strong class="font-semibold">자신만의 결과물</strong>이어야 합니다.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 5: Final Submission -->
+        <section id="submission" class="text-center">
+            <h2 class="text-3xl font-bold mb-8 text-center">📜 FINAL <span class="text-green-400">SUBMISSION</span></h2>
+            <div class="max-w-2xl mx-auto glass-card p-8 rounded-lg">
+                <h3 class="font-bold text-xl mb-4 text-green-400">제출 안내</h3>
+                <p class="text-gray-300 mb-6">모든 탐구를 마쳤다면, 활동지를 PDF 파일로 변환하여 아래 규칙에 따라 제출해주세요.</p>
+                <div class="bg-blue-900 bg-opacity-30 border-l-4 border-blue-500 text-blue-200 p-4 rounded-r-lg mb-8 text-left" role="alert">
+                    <p class="font-bold">파일명 규칙</p>
+                    <p>완성된 탐구 보고서 파일 이름은 <strong class="font-semibold">'0분반_학번_이름'</strong> 형식으로 저장해주세요.</p>
+                    <p class="text-sm mt-1">(예: 1분반_3901_김다은)</p>
+                </div>
+                <a href="https://drive.google.com/drive/folders/1GNxd2j7tYc3gg3H_jJbs7sgAXV_xzKU4?usp=sharing" target="_blank" rel="noopener noreferrer" class="bg-green-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-green-500/50 inline-block">
+                    구글 드라이브에 보고서 제출하기
+                </a>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 mt-16 border-t border-gray-700">
+        <div class="container mx-auto px-6 py-4 text-center text-gray-500">
+            <p>&copy; 2025 정보과 수행평가 안내</p>
+        </div>
+    </footer>
+    
+    <!-- Modals -->
+    <div id="modal-form1" class="modal fixed inset-0 bg-black bg-opacity-70 hidden flex justify-center items-center p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-lg shadow-2xl w-full max-w-3xl max-h-full overflow-y-auto">
+            <div class="flex justify-between items-center p-4 border-b border-gray-700">
+                <h3 class="text-xl font-bold">탐구 활동지</h3>
+                <button onclick="copyContent()" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors">내용 복사하기</button>
+                <button onclick="closeModal('modal-form1')" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="mission-sheet-content" class="p-8">
+                <h3><strong>탐색 & 해싱 알고리즘 심화 탐구 활동지</strong></h3>
+                <p><strong>학번/이름:</strong> </p>
+                
+                <h4>1. 탐구 주제</h4>
+                <p><strong>실생활 활용 예시와 자료구조의 특성을 상세히 연결하여 탐구 주제를 구체적으로 작성하세요.</strong></p>
+                <p class="text-gray-400">(예시: 수강 신청 시스템의 빠른 과목 검색을 위한 효율적인 자료구조 설계, SNS 실시간 피드 업데이트를 위한 데이터 관리 방안 연구 등)</p>
+                
+                <h4>2. 문제 해결을 위한 해결책 고안 (3개 이상의 자료구조 활용)</h4>
+                <p><strong>선정한 주제의 문제를 해결하기 위해, 3개 이상의 자료구조를 어떻게 조합하여 활용할 것인지 구체적인 해결책(아이디어)을 서술하세요.</strong></p>
+                
+                <h4>3. 해결책 시각화</h4>
+                <p><strong>고안한 해결책이 어떻게 작동하는지, 자료구조 간의 상호작용을 포함하여 순서도, 다이어그램 등으로 자유롭게 시각화하세요.</strong></p>
+                <div class="w-full h-96 bg-gray-900 border-2 border-dashed border-gray-600 rounded-lg flex justify-center items-center my-4">
+                    <span class="text-gray-500">(여기에 시각화 자료를 그리거나 이미지를 삽입하세요)</span>
+                </div>
+
+                <h4>4. 자료구조 심층 분석</h4>
+                <p><strong>위에서 제시한 해결책에 사용될 각 자료구조에 대해 아래 항목을 상세히 분석하여 작성하세요.</strong></p>
+                
+                <p><strong>[자료구조 1]</strong></p>
+                <ul>
+                    <li><strong>- 종류:</strong> </li>
+                    <li><strong>- 정의:</strong> </li>
+                    <li><strong>- 주요 특징:</strong> </li>
+                    <li><strong>- 시간 복잡도 (탐색, 삽입, 삭제):</strong> </li>
+                    <li><strong>- 이 자료구조를 선택한 이유:</strong> </li>
+                </ul>
+                
+                <p><strong>[자료구조 2]</strong></p>
+                <ul>
+                    <li><strong>- 종류:</strong> </li>
+                    <li><strong>- 정의:</strong> </li>
+                    <li><strong>- 주요 특징:</strong> </li>
+                    <li><strong>- 시간 복잡도 (탐색, 삽입, 삭제):</strong> </li>
+                    <li><strong>- 이 자료구조를 선택한 이유:</strong> </li>
+                </ul>
+
+                <p><strong>[자료구조 3]</strong></p>
+                <ul>
+                     <li><strong>- 종류:</strong> </li>
+                    <li><strong>- 정의:</strong> </li>
+                    <li><strong>- 주요 특징:</strong> </li>
+                    <li><strong>- 시간 복잡도 (탐색, 삽입, 삭제):</strong> </li>
+                    <li><strong>- 이 자료구조를 선택한 이유:</strong> </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function openModal(modalID) {
+            document.getElementById(modalID).classList.remove('hidden');
+            document.body.classList.add('modal-active');
+        }
+
+        function closeModal(modalID) {
+            document.getElementById(modalID).classList.add('hidden');
+            document.body.classList.remove('modal-active');
+        }
+
+        function copyContent() {
+            const content = document.getElementById('mission-sheet-content').innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = content;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    alert('활동지 내용이 복사되었습니다! Google Docs에 붙여넣어 사용하세요.');
+                } else {
+                    alert('복사에 실패했습니다.');
+                }
+            } catch (err) {
+                alert('복사에 실패했습니다.');
+                console.error('Could not copy text: ', err);
+            }
+            document.body.removeChild(textarea);
+        }
+        
+        function copyPrompt(elementId, buttonElement) {
+            const promptText = document.getElementById(elementId).innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = promptText;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    const originalText = buttonElement.innerText;
+                    buttonElement.innerText = '복사 완료!';
+                    buttonElement.disabled = true;
+                    setTimeout(() => {
+                        buttonElement.innerText = originalText;
+                        buttonElement.disabled = false;
+                    }, 2000);
+                } else {
+                     alert('복사에 실패했습니다.');
+                }
+            } catch (err) {
+                alert('복사에 실패했습니다.');
+                console.error('Could not copy prompt: ', err);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === "Escape") {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (!modal.classList.contains('hidden')) {
+                        closeModal(modal.id);
+                    }
+                });
+            }
+        });
+        
+        window.addEventListener('click', function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
+
