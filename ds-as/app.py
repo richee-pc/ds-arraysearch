@@ -5,22 +5,39 @@ import os
 # Streamlit 페이지 설정을 넓은 레이아웃으로 변경합니다.
 st.set_page_config(layout="wide")
 
-# 페이지 제목과 간단한 설명을 추가합니다.
-st.title("🚀 인터랙티브 정렬 & 탐색 알고리즘 학습")
-st.markdown("HTML, CSS, JavaScript로 제작된 시각화 도구를 Streamlit을 통해 배포합니다. 아래에서 다양한 알고리즘을 직접 체험해보세요!")
+# 페이지 제목과 설명을 업데이트합니다.
+st.title("🚀 인터랙티브 알고리즘 학습")
+st.markdown("다양한 알고리즘을 시각적으로 체험하며 학습해보세요! 각 탭을 클릭하여 원하는 콘텐츠를 확인하세요.")
 
-# 현재 작업 디렉토리를 기준으로 HTML 파일의 절대 경로를 생성합니다.
-# 이 app.py 파일과 같은 위치에 'index.html' 파일이 있어야 합니다.
-filepath = os.path.join(os.path.dirname(__file__), "./htmls/index.html")
+# 두 개의 학습 콘텐츠를 위한 탭을 생성합니다.
+tab1, tab2 = st.tabs(["정렬 알고리즘 시각화", "탐색 & 해싱 알고리즘 챌린지"])
 
-# HTML 파일을 읽어옵니다.
-try:
-    with open(filepath, 'r', encoding='utf-8') as f:
-        html_code = f.read()
-        # Streamlit 앱에 HTML 컴포넌트를 삽입합니다.
-        # height를 충분히 주어 스크롤바가 생기지 않도록 조정합니다.
-        components.html(html_code, height=1500, scrolling=True)
-except FileNotFoundError:
-    st.error("오류: 'index.html' 파일을 찾을 수 없습니다. app.py와 같은 폴더에 저장해주세요.")
+# 첫 번째 탭: 기존의 정렬 알고리즘 시각화 (index.html)
+with tab1:
+    st.header("정렬 알고리즘 시각화 도구")
+    
+    # index.html 파일 경로 설정
+    filepath1 = os.path.join(os.path.dirname(__file__), "htmls", "index.html")
 
-st.info("각 알고리즘 탭을 클릭하여 시뮬레이션을 시작할 수 있습니다.")
+    # HTML 파일을 읽어와서 표시합니다.
+    try:
+        with open(filepath1, 'r', encoding='utf-8') as f:
+            html_code1 = f.read()
+            components.html(html_code1, height=1500, scrolling=True)
+    except FileNotFoundError:
+        st.error("오류: 'htmls/index.html' 파일을 찾을 수 없습니다. 경로를 확인해주세요.")
+
+# 두 번째 탭: 새로운 탐색 & 해싱 알고리즘 챌린지 (index2.html)
+with tab2:
+    st.header("탐색 & 해싱 알고리즘 탐구 챌린지")
+
+    # index2.html 파일 경로 설정
+    filepath2 = os.path.join(os.path.dirname(__file__), "htmls", "index2.html")
+    
+    # HTML 파일을 읽어와서 표시합니다.
+    try:
+        with open(filepath2, 'r', encoding='utf-8') as f:
+            html_code2 = f.read()
+            components.html(html_code2, height=1500, scrolling=True)
+    except FileNotFoundError:
+        st.error("오류: 'htmls/index2.html' 파일을 찾을 수 없습니다. 새로 생성된 HTML 파일을 해당 경로에 저장해주세요.")
